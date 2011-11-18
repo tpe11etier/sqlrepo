@@ -18,8 +18,8 @@ class Connection(object):
 		except Exception, e:
 			print e
 
-	def encode(self,dataset):
-		return dataset[0].encode('utf-8'), dataset[1], dataset[2].encode('utf-8')
+	def encode(self,string):
+		return string.encode('utf-8')
 
 
 	def get(self):
@@ -109,8 +109,10 @@ class Connection(object):
 	def showall(self):
 		self.cur.execute('select customer, wonum, dataset from sqlrepo order by customer')
 		allrows = self.cur.fetchall()
+		print 'Customer - WO Num - Data Set'
+		print seperator
 		for row in allrows:
-			print self.encode(row)
+			print self.encode(row[0]), row[1], self.encode(row[2])
 
 
 	def search(self):
@@ -119,7 +121,7 @@ class Connection(object):
 		result = self.cur.fetchall()
 		for row in result:
 			if len(row) > 0:
-				print self.encode(row)
+				print self.encode(row[0]), row[1], self.encode(row[2])
 			else:
 				print 'No Results.'
 
