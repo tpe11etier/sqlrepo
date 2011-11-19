@@ -26,23 +26,35 @@ class Connection(object):
 		self.cur.execute('select distinct customer from sqlrepo')
 		customers = self.cur.fetchall()
 		custList = [a[0] for a in customers]
+		print ''
+		print '---Customers---'
+		print seperator
 		for cust in custList:
 			print cust.encode('utf-8')
+		print ''
 		customer = raw_input('Select the customer:')
-		self.cur.execute('select distinct wonum from sqlrepo where customer = ?',[customer])
+		self.cur.execute('select wonum from sqlrepo where customer like ?',[customer])
 		wos = self.cur.fetchall()
 		wosList = [a[0] for a in wos]
+		print ''
+		print '---WO Numbers---'
+		print seperator
 		for w in wosList:
 			print w
+		print ''
 		wo = raw_input('Select the Work Order:')
-		self.cur.execute('select dataset from sqlrepo where customer = ? and wonum = ?', (customer,wo))
+		self.cur.execute('select dataset from sqlrepo where customer like ? and wonum = ?', (customer,wo))
 		datasets = self.cur.fetchall()
 		datasetsList = [a[0] for a in datasets]
+		print ''
+		print '---Data Sets---'
+		print seperator
 		for d in datasetsList:
 			print d
+		print ''
 		dataset = raw_input('Select DataSet:')
 
-		self.cur.execute('select sql from sqlrepo where customer = ? and wonum = ? and dataset = ?', (customer,wo, dataset))
+		self.cur.execute('select sql from sqlrepo where customer like ? and wonum = ? and dataset like ?', (customer,wo, dataset))
 		allentries = self.cur.fetchall()
 		for x in allentries:
 			string = ''.join(x)
@@ -72,62 +84,82 @@ class Connection(object):
 			self.conn.execute('insert into sqlrepo (customer, wonum, dataset, sql) values(?,?,?,?)', (customer,wonum,dataset,sql))
 			self.conn.commit()
 			print 'Insert successful.'
+			print ''
 			main()
 		except Exception, e:
 			print e
 			main()
-	
+
 	def delete(self):
 		self.cur.execute('select customer from sqlrepo order by customer')
 		customer = raw_input('Please enter customer name: ')
-		self.cur.execute('select wonum from sqlrepo where customer = ?', (customer,))
+		self.cur.execute('select wonum from sqlrepo where customer like ?', (customer,))
 		wonums = self.cur.fetchall()
+		print ''
+		print '---WO Number---'
+		print seperator
 		for row in wonums:
-			print row
+			print row[0]
+		print ''
 		wonum = raw_input('Please enter WO number: ')
-		self.cur.execute('select dataset from sqlrepo where customer = ? and wonum = ?', (customer, wonum))
-		custwonum = self.cur.fetchall()
-		for row in custwonum:
-			print row
+		self.cur.execute('select dataset from sqlrepo where customer like ? and wonum = ?', (customer, wonum))
+		dataset = self.cur.fetchall()
+		print ''
+		print '---Data Set---'
+		print seperator
+		for row in dataset:
+			print self.encode(row[0])
+		print ''
 		dataset = raw_input('Please enter the dataset: ')
 
 		try:
+			print ''
 			print 'You are about to delete the following entry: '
-			print customer, wonum, dataset
+			print '-Customer-  -WO Number-  -Data Set-'
+			print seperator
+			print self.encode(customer), wonum, self.encode(dataset)
+			print ''
 			answer = raw_input('Are you sure you want to do so? (y or n): ')
 			if answer == 'y':
-				self.cur.execute('delete from sqlrepo where customer = ? and wonum = ? and dataset = ?', (customer, wonum, dataset))
+				self.cur.execute('delete from sqlrepo where customer like ? and wonum = ? and dataset like ?', (customer, wonum, dataset))
 				self.conn.commit()
-				print '%s %s %s has been deleted!' % (customer, wonum, dataset)
+				print '%s %s %s has been deleted!\n' % (customer, wonum, dataset)
 			else:
 				print 'Deletion Cancelled!'
 				sys.exit()
 		except Exception, e:
 			print e
 
-		        
+
 	def showall(self):
 		self.cur.execute('select customer, wonum, dataset from sqlrepo order by customer')
 		allrows = self.cur.fetchall()
+		print ''
 		print 'Customer - WO Num - Data Set'
 		print seperator
 		for row in allrows:
 			print self.encode(row[0]), row[1], self.encode(row[2])
+		print ''
 
 
 	def search(self):
 		wonum = raw_input('Please enter WO Number:')
 		self.cur.execute('select customer, wonum, dataset from sqlrepo where wonum like ? order by customer', (wonum,))
 		result = self.cur.fetchall()
+		print ''
+		print 'Customer - WO Num - Data Set'
+		print seperator
 		for row in result:
 			if len(row) > 0:
 				print self.encode(row[0]), row[1], self.encode(row[2])
 			else:
 				print 'No Results.'
+		print ''
 
 
 
 def main():
+	print '---Main Menu---'
 	print seperator
 	print '1.  Retrieve SQL.'
 	print '2.  Insert SQL.'
