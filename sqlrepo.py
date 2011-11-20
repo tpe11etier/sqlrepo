@@ -26,8 +26,7 @@ class Connection(object):
 		self.cur.execute('select distinct customer from sqlrepo')
 		customers = self.cur.fetchall()
 		custList = [a[0] for a in customers]
-		print ''
-		print '---Customers---'
+		print '\n---Customers---'
 		print seperator
 		for cust in custList:
 			print cust.encode('utf-8')
@@ -36,8 +35,7 @@ class Connection(object):
 		self.cur.execute('select wonum from sqlrepo where customer like ?',[customer])
 		wos = self.cur.fetchall()
 		wosList = [a[0] for a in wos]
-		print ''
-		print '---WO Numbers---'
+		print '\n---WO Numbers---'
 		print seperator
 		for w in wosList:
 			print w
@@ -46,8 +44,7 @@ class Connection(object):
 		self.cur.execute('select dataset from sqlrepo where customer like ? and wonum = ?', (customer,wo))
 		datasets = self.cur.fetchall()
 		datasetsList = [a[0] for a in datasets]
-		print ''
-		print '---Data Sets---'
+		print '\n---Data Sets---'
 		print seperator
 		for d in datasetsList:
 			print d
@@ -95,8 +92,7 @@ class Connection(object):
 		customer = raw_input('Please enter customer name: ')
 		self.cur.execute('select wonum from sqlrepo where customer like ?', (customer,))
 		wonums = self.cur.fetchall()
-		print ''
-		print '---WO Number---'
+		print '\n---WO Number---'
 		print seperator
 		for row in wonums:
 			print row[0]
@@ -104,8 +100,7 @@ class Connection(object):
 		wonum = raw_input('Please enter WO number: ')
 		self.cur.execute('select dataset from sqlrepo where customer like ? and wonum = ?', (customer, wonum))
 		dataset = self.cur.fetchall()
-		print ''
-		print '---Data Set---'
+		print '\n---Data Set---'
 		print seperator
 		for row in dataset:
 			print self.encode(row[0])
@@ -113,8 +108,7 @@ class Connection(object):
 		dataset = raw_input('Please enter the dataset: ')
 
 		try:
-			print ''
-			print 'You are about to delete the following entry: '
+			print '\nYou are about to delete the following entry: '
 			print '-Customer-  -WO Number-  -Data Set-'
 			print seperator
 			print self.encode(customer), wonum, self.encode(dataset)
@@ -134,20 +128,33 @@ class Connection(object):
 	def showall(self):
 		self.cur.execute('select customer, wonum, dataset from sqlrepo order by customer')
 		allrows = self.cur.fetchall()
-		print ''
-		print 'Customer - WO Num - Data Set'
+		print '\nCustomer - WO Num - Data Set'
 		print seperator
 		for row in allrows:
 			print self.encode(row[0]), row[1], self.encode(row[2])
 		print ''
 
 
-	def search(self):
+	def searchbywo(self):
 		wonum = raw_input('Please enter WO Number:')
+		wonum = '%' + wonum + '%'
 		self.cur.execute('select customer, wonum, dataset from sqlrepo where wonum like ? order by customer', (wonum,))
 		result = self.cur.fetchall()
+		print '\nCustomer - WO Num - Data Set'
+		print seperator
+		for row in result:
+			if len(row) > 0:
+				print self.encode(row[0]), row[1], self.encode(row[2])
+			else:
+				print 'No Results.'
 		print ''
-		print 'Customer - WO Num - Data Set'
+
+	def searchbycust(self):
+		customer = raw_input('Please enter Customer:')
+		customer = '%' + customer + '%'
+		self.cur.execute('select customer, wonum, dataset from sqlrepo where customer like ? order by customer', (customer,))
+		result = self.cur.fetchall()
+		print '\nCustomer - WO Num - Data Set'
 		print seperator
 		for row in result:
 			if len(row) > 0:
@@ -164,8 +171,9 @@ def main():
 	print '1.  Retrieve SQL.'
 	print '2.  Insert SQL.'
 	print '3.  Search by WO Number.'
-	print '4.  Show all Rows.'
-	print '5.  Delete Entry.'
+	print '4.  Search by Customer.'
+	print '5.  Show all Rows.'
+	print '6.  Delete Entry.'
 	print '99. Exit Program.'
 	option = raw_input('Select an option: ')
 	if option == '1':
@@ -173,16 +181,22 @@ def main():
 	elif option == '2':
 		c.insert()
 	elif option == '3':
-		c.search()
+		c.searchbywo()
 		main()
 	elif option == '4':
-		c.showall()
+		c.searchbycust()
 		main()
 	elif option == '5':
+		c.showall()
+		main()
+	elif option == '6':
 		c.delete()
 		main()
 	elif option == '99':
 		sys.exit()
+	else:
+		print '\nInvalid option. Please try again.\n'
+		main()
 
 if __name__ == '__main__':
 	try:
