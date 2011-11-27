@@ -19,19 +19,19 @@ class Connection(object):
 			print e
 
 def encode(string):
-	return string.encode('utf-8')
+	return string.encode('utf-8').upper()
 
 
 def get():
 	c.cur.execute('select distinct customer from sqlrepo')
 	customers = c.cur.fetchall()
-	custList = [a[0].encode('utf-8') for a in customers]
+	custList = [a[0].encode('utf-8').upper() for a in customers]
 	print '\n---Customers---'
 	print seperator
 	for cust in custList:
 		print cust
 	print ''
-	customer = raw_input('Select the customer:')
+	customer = raw_input('Select the customer:').upper()
 	if customer not in custList:
 		print '\n---Invalid Customer.---'
 		get()
@@ -49,13 +49,13 @@ def get():
 		get()
 	c.cur.execute('select dataset from sqlrepo where customer like ? and wonum = ?', (customer,wo))
 	datasets = c.cur.fetchall()
-	datasetsList = [a[0].encode('utf-8') for a in datasets]
+	datasetsList = [a[0].encode('utf-8').upper() for a in datasets]
 	print '\n---Data Sets---'
 	print seperator
 	for d in datasetsList:
 		print d
 	print ''
-	dataset = raw_input('Select DataSet:')
+	dataset = raw_input('Select DataSet:').upper()
 	if dataset not in datasetsList:
 		print '\n---Invalid Data Set.---'
 		get()
